@@ -1,0 +1,24 @@
+# ---- 个人资料：绝不提交 ----
+private/
+resume/
+*.pdf
+*.docx
+*.doc
+# 运行期产物
+data/current_resume.json
+*.db
+*.sqlite3
+.env
+.env.*
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+# 前端 / 依赖
+node_modules/
+dist/
+# 抓取结果与日志
+out/
+logs/
+*.log

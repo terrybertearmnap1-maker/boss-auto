@@ -1,0 +1,87 @@
+#boss-auto-panel {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  width: 240px;
+  z-index: 2147483000;
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 13px;
+  color: #1f2d3d;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  border: 1px solid #e6eef0;
+}
+
+#boss-auto-panel .ba-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #00bebd;
+  color: #fff;
+  font-weight: 600;
+}
+
+#boss-auto-panel .ba-badge {
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.25);
+  font-weight: 500;
+}
+
+#boss-auto-panel .ba-badge.running { background: #ff9f1c; }
+#boss-auto-panel .ba-badge.idle { background: rgba(255, 255, 255, 0.3); }
+
+#boss-auto-panel .ba-body { padding: 10px 12px 12px; }
+
+#boss-auto-panel .ba-row {
+  display: flex;
+  justify-content: space-between;
+  line-height: 22px;
+  color: #5b6b73;
+}
+
+#boss-auto-panel .ba-row b { color: #00a3a2; }
+
+#boss-auto-panel .ba-status {
+  margin-top: 6px;
+  padding: 6px 8px;
+  background: #f5fbfb;
+  border-radius: 6px;
+  color: #2b4a52;
+  line-height: 1.5;
+  word-break: break-all;
+  max-height: 60px;
+  overflow: auto;
+}
+
+#boss-auto-panel .ba-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+#boss-auto-panel .ba-actions button {
+  flex: 1;
+  padding: 6px 0;
+  border: none;
+  border-radius: 6px;
+  background: #00bebd;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+#boss-auto-panel .ba-actions button#ba-stop { background: #e74c3c; }
+#boss-auto-panel .ba-actions button#ba-csv { background: #6c7a89; }
+#boss-auto-panel .ba-actions button:hover { opacity: 0.88; }
+
+#boss-auto-panel .ba-tip {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #93a3ab;
+  line-height: 1.5;
+}

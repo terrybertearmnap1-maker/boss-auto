@@ -1,0 +1,101 @@
+[
+  {
+    "job_id": "boss-c5a4c833",
+    "title": "AI Agent 开发工程师",
+    "company": "迈络科技",
+    "salary": "12-20K",
+    "url": "https://www.zhipin.com/job_detail/c5a4c833.html",
+    "jd": "岗位职责：负责 AI Agent 智能体产品开发，基于 LangGraph 编排多步任务，实现工具调用；参与 RAG 检索链路与知识库建设。任职要求：熟悉 Python 与大模型 API，了解 MCP 协议与 Qdrant 向量数据库，有 FastAPI 服务开发经验，了解 Redis 缓存设计。",
+    "city": "广州"
+  },
+  {
+    "job_id": "boss-deb78dca",
+    "title": "AI 应用开发工程师（广州）",
+    "company": "云阁科技",
+    "salary": "10-15K",
+    "url": "https://www.zhipin.com/job_detail/deb78dca.html",
+    "jd": "岗位职责：负责大模型能力在业务场景中的落地封装，配合产品完成智能体应用交互设计。任职要求：有 Python 开发经验，理解 Prompt 工程，熟悉 FastAPI，了解 Docker 部署。",
+    "city": "广州"
+  },
+  {
+    "job_id": "boss-02fca449",
+    "title": "AI Agent 开发实习生",
+    "company": "琢瓴科技",
+    "salary": "150-250元/天",
+    "url": "https://www.zhipin.com/job_detail/02fca449.html",
+    "jd": "岗位职责：参与智能体应用开发与调试，基于 LangChain 实现多工具调用。任职要求：熟悉 Python，了解大模型应用开发与 RAG 检索，每周可实习 5 天。",
+    "city": "广州"
+  },
+  {
+    "job_id": "boss-7f2b91c3",
+    "title": "大模型应用工程师",
+    "company": "云智科技",
+    "salary": "15-25K",
+    "url": "https://www.zhipin.com/job_detail/7f2b91c3.html",
+    "jd": "岗位职责：负责大模型应用的设计与实现，包括 RAG 知识库、Prompt 模板管理与评测。任职要求：熟悉 Python / FastAPI，有向量数据库（Qdrant、Milvus）使用经验，了解 MCP 协议者优先，熟悉 Docker Compose 部署。",
+    "city": "广州"
+  },
+  {
+    "job_id": "boss-91c4d2a8",
+    "title": "智能体平台研发工程师",
+    "company": "数擎科技",
+    "salary": "18-30K",
+    "url": "https://www.zhipin.com/job_detail/91c4d2a8.html",
+    "jd": "岗位职责：负责智能体编排平台的核心模块开发，包括工作流引擎、工具注册与调用、会话隔离。任职要求：熟悉 Python 与 LangGraph 或同类编排框架，了解 WebSocket 实时通信，有 Redis 会话存储经验，熟悉 MySQL。",
+    "city": "广州"
+  },
+  {
+    "job_id": "boss-3ad7c516",
+    "title": "AI 应用开发实习生（RAG 方向）",
+    "company": "海知智能",
+    "salary": "200-300元/天",
+    "url": "https://www.zhipin.com/job_detail/3ad7c516.html",
+    "jd": "岗位职责：参与企业知识库问答系统的开发，负责文档切块、向量化与检索优化。任职要求：熟悉 Python，了解 RAG 流程与向量数据库，会写 Prompt，能实习 6 个月。",
+    "city": "深圳"
+  },
+  {
+    "job_id": "boss-b76ff492",
+    "title": "数据分析实习生",
+    "company": "言绘网络",
+    "salary": "190-200元/天",
+    "url": "https://www.zhipin.com/job_detail/b76ff492.html",
+    "jd": "岗位职责：协助梳理业务指标，编写 SQL 提取数据并做清洗。任职要求：熟练使用 SQL，数学、统计相关专业。",
+    "city": "广州"
+  },
+  {
+    "job_id": "boss-1093ca13",
+    "title": "Java 后端开发实习生",
+    "company": "广东亿迅科技",
+    "salary": "130-190元/天",
+    "url": "https://www.zhipin.com/job_detail/1093ca13.html",
+    "jd": "岗位职责：负责 Java 后端服务开发，参与接口设计与联调。任职要求：熟悉 Spring Boot，了解 MySQL 与 Redis。",
+    "city": "广州"
+  },
+  {
+    "job_id": "boss-5e8f2b74",
+    "title": "AI Agent 产品经理实习生",
+    "company": "知行科技",
+    "salary": "180-220元/天",
+    "url": "https://www.zhipin.com/job_detail/5e8f2b74.html",
+    "jd": "岗位职责：负责 AI Agent 产品的需求分析与原型设计。任职要求：了解大模型应用，有产品思维，沟通能力强。",
+    "city": "深圳"
+  },
+  {
+    "job_id": "boss-6c1a9f02",
+    "title": "Agent 应用开发（销售支持方向）",
+    "company": "拓客云",
+    "salary": "8-12K",
+    "url": "https://www.zhipin.com/job_detail/6c1a9f02.html",
+    "jd": "岗位职责：为销售团队搭建 AI 助手，处理客户咨询与线索分配。任职要求：熟悉 Python，了解大模型 API。",
+    "city": "广州"
+  },
+  {
+    "job_id": "boss-9d2f4a71",
+    "title": "高级 AI Agent 工程师（3-5 年）",
+    "company": "深智科技",
+    "salary": "25-40K",
+    "url": "https://www.zhipin.com/job_detail/9d2f4a71.html",
+    "city": "广州",
+    "jd": "岗位职责：负责 AI Agent 平台架构设计，基于 LangGraph 编排复杂工作流，主导 RAG 检索链路优化。任职要求：3-5 年后端或算法经验，精通 Python，熟悉 MCP、Qdrant、Redis、FastAPI，有大规模系统设计经验。"
+  }
+]

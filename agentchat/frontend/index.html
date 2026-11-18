@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agent Chat</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0f1419; color: #e6edf3;
+         font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
+  .app { max-width: 880px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; }
+  header { padding: 14px 18px; border-bottom: 1px solid #21262d; display: flex; gap: 12px; align-items: baseline; }
+  header h1 { font-size: 16px; margin: 0; color: #2dd4bf; }
+  .badges { display: flex; gap: 8px; font-size: 11px; color: #8b949e; }
+  .badge { border: 1px solid #21262d; border-radius: 10px; padding: 1px 8px; }
+  .badge.on { border-color: #2dd4bf; color: #2dd4bf; }
+  main { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+  .msg { max-width: 78%; padding: 10px 14px; border-radius: 12px; line-height: 1.65; font-size: 14px; white-space: pre-wrap; }
+  .user { align-self: flex-end; background: #1f6feb; color: #fff; }
+  .bot { align-self: flex-start; background: #161b22; border: 1px solid #21262d; }
+  .meta { font-size: 11px; color: #8b949e; margin-top: 8px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .tool { color: #f0883e; }
+  footer { padding: 12px 18px 18px; border-top: 1px solid #21262d; display: flex; gap: 10px; }
+  input { flex: 1; padding: 11px 14px; border-radius: 10px; border: 1px solid #30363d;
+          background: #0d1117; color: #e6edf3; font-size: 14px; outline: none; }
+  input:focus { border-color: #2dd4bf; }
+  button { padding: 11px 18px; border-radius: 10px; border: none; background: #2dd4bf;
+           color: #0f1419; font-weight: 600; cursor: pointer; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .typing::after { content: "▍"; animation: blink 1s steps(2) infinite; color: #2dd4bf; }
+  @keyframes blink { 50% { opacity: 0; } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useEffect, useRef, useState } = React;
+
+function App() {
+  const [messages, setMessages] = useState([]);
+  const [draft, setDraft] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [health, setHealth] = useState({});
+  const [streamingId, setStreamingId] = useState(null);
+  const wsRef = useRef(null);
+  const convId = useRef("conv-" + Math.random().toString(36).slice(2, 8));
+  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    fetch("/health").then((r) => r.json()).then(setHealth).catch(() => {});
+    const proto = location.protocol === "https:" ? "wss" : "ws";
+    const ws = new WebSocket(`${proto}://${location.host}/ws/chat`);
+    wsRef.current = ws;
+    ws.onmessage = (e) => {
+      const ev = JSON.parse(e.data);
+      setMessages((prev) => {
+        const next = [...prev];
+        const cur = next[next.length - 1];
+        if (!cur || cur.role !== "bot") return next;
+        if (ev.type === "status") cur.stage = ev.stage;
+        if (ev.type === "sources") cur.sources = ev.items;
+        if (ev.type === "tool") cur.tool = `${ev.name} → ${ev.result}`;
+        if (ev.type === "token") cur.text += ev.delta;
+        if (ev.type === "done") { cur.done = true; cur.latency = ev.latency_ms; cur.tokens = ev.tokens; }
+        if (ev.type === "error") { cur.text += `\n[错误] ${ev.message}`; cur.done = true; }
+        return next;
+      });
+      if (ev.type === "done" || ev.type === "error") { setBusy(false); setStreamingId(null); }
+    };
+    return () => ws.close();
+  }, []);
+
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+
+  const send = () => {
+    const text = draft.trim();
+    if (!text || busy || wsRef.current?.readyState !== 1) return;
+    setMessages((m) => [...m, { role: "user", text }, { role: "bot", text: "", done: false }]);
+    setDraft("");
+    setBusy(true);
+    wsRef.current.send(JSON.stringify({ type: "user", text, conv_id: convId.current }));
+  };
+
+  return (
+    <div className="app">
+      <header>
+        <h1>Agent Chat</h1>
+        <div className="badges">
+          <span className={"badge " + (health.vector === "qdrant" ? "on" : "")}>vector: {health.vector || "-"}</span>
+          <span className={"badge " + (health.memory === "redis" ? "on" : "")}>memory: {health.memory || "-"}</span>
+          <span className="badge">llm: {health.llm || "-"}</span>
+          <span className="badge">docs: {health.docs ?? "-"}</span>
+        </div>
+      </header>
+      <main>
+        {messages.length === 0 && (
+          <div className="msg bot">试试问：LangGraph 的条件边怎么用？或「现在几点」看看工具调用。</div>
+        )}
+        {messages.map((m, i) => (
+          <div key={i} className={"msg " + (m.role === "user" ? "user" : "bot")}>
+            <div className={!m.done && m.role === "bot" ? "typing" : ""}>{m.text}</div>
+            {m.role === "bot" && (m.stage || m.tool || m.sources) && (
+              <div className="meta">
+                {m.stage && <span>状态：{m.stage}</span>}
+                {m.tool && <span className="tool">工具：{m.tool}</span>}
+                {m.sources && <span>引用：{m.sources.map((s) => `${s.title}(${s.score})`).join(", ")}</span>}
+                {m.latency != null && <span>{m.tokens} 字 / {m.latency}ms</span>}
+              </div>
+            )}
+          </div>
+        ))}
+        <div ref={bottomRef} />
+      </main>
+      <footer>
+        <input
+          value={draft}
+          placeholder={busy ? "正在回答…" : "输入问题，回车发送"}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && send()}
+          disabled={busy}
+        />
+        <button onClick={send} disabled={busy || !draft.trim()}>发送</button>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

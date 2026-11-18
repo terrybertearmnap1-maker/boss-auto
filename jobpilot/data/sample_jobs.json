@@ -1,0 +1,56 @@
+[
+  {
+    "job_id": "boss-c5a4c833",
+    "title": "AI Agent 开发工程师",
+    "company": "迈络科技",
+    "salary": "12-20K",
+    "url": "https://www.zhipin.com/job_detail/c5a4c833.html",
+    "source": "zhipin",
+    "jd": "岗位职责\n1. 负责 AI Agent 智能体产品开发；\n2. 基于 LangGraph 编排多步任务，实现工具调用；\n3. 参与 RAG 检索链路与知识库建设。\n任职要求\n1. 熟悉 Python 与大模型 API；\n2. 了解 MCP 协议、向量数据库者优先；\n3. 有 FastAPI 服务开发经验。"
+  },
+  {
+    "job_id": "boss-deb78dca",
+    "title": "AI 应用开发工程师",
+    "company": "云阁科技",
+    "salary": "10-15K",
+    "url": "https://www.zhipin.com/job_detail/deb78dca.html",
+    "source": "zhipin",
+    "jd": "岗位职责\n1. 负责大模型能力在业务场景中的落地；\n2. 配合产品完成智能体应用交互设计。\n任职要求\n1. 有 Python 开发经验；\n2. 理解 Prompt 工程；\n3. 熟悉 FastAPI 或同类框架。"
+  },
+  {
+    "job_id": "boss-02fca449",
+    "title": "AI Agent 开发实习生",
+    "company": "琢瓴科技",
+    "salary": "150-250元/天",
+    "url": "https://www.zhipin.com/job_detail/02fca449.html",
+    "source": "zhipin",
+    "jd": "岗位职责\n1. 参与智能体应用的开发与调试；\n2. 基于 LangChain 实现多工具调用。\n任职要求\n1. 熟悉 Python；\n2. 了解大模型应用开发；\n3. 每周可实习 5 天。"
+  },
+  {
+    "job_id": "boss-b76ff492",
+    "title": "数据分析实习生",
+    "company": "言绘网络",
+    "salary": "190-200元/天",
+    "url": "https://www.zhipin.com/job_detail/b76ff492.html",
+    "source": "zhipin",
+    "jd": "岗位职责\n1. 协助梳理业务指标；\n2. 编写 SQL 提取数据并做清洗。\n任职要求\n1. 熟练使用 SQL；\n2. 数学、统计相关专业。"
+  },
+  {
+    "job_id": "boss-1093ca13",
+    "title": "Java 后端开发实习生",
+    "company": "广东亿迅科技",
+    "salary": "130-190元/天",
+    "url": "https://www.zhipin.com/job_detail/1093ca13.html",
+    "source": "zhipin",
+    "jd": "岗位职责\n1. 负责 Java 后端服务开发；\n2. 参与接口设计与联调。\n任职要求\n1. 熟悉 Spring Boot；\n2. 了解 MySQL 与 Redis。"
+  },
+  {
+    "job_id": "boss-03d14839",
+    "title": "AI Agent 开发工程师（重发）",
+    "company": "迈络科技",
+    "salary": "12-20K",
+    "url": "https://www.zhipin.com/job_detail/03d14839.html",
+    "source": "zhipin",
+    "jd": "岗位职责\n1. 负责 AI Agent 智能体产品开发；\n2. 基于 LangGraph 编排多步任务，实现工具调用；\n3. 参与 RAG 检索链路与知识库建设。\n任职要求\n1. 熟悉 Python 与大模型 API；\n2. 了解 MCP 协议、向量数据库者优先；\n3. 有 FastAPI 服务开发经验。"
+  }
+]

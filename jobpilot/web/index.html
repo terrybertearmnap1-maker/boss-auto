@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>JobPilot 控制台</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0b0f14; color: #d8e1e8;
+         font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; font-size: 13px; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 22px; }
+  header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 16px; }
+  h1 { font-size: 18px; margin: 0; color: #2dd4bf; }
+  .muted { color: #7d8b96; font-size: 12px; }
+  .live { margin-left: auto; font-size: 11px; color: #7d8b96; }
+  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #f0883e; margin-right: 5px; }
+  .dot.on { background: #2dd4bf; }
+  .cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 14px; }
+  .card { background: #121820; border: 1px solid #1e2833; border-radius: 10px; padding: 12px 14px; }
+  .card .k { color: #7d8b96; font-size: 11px; }
+  .card .v { font-size: 22px; font-weight: 700; margin-top: 4px; }
+  .v.green { color: #2dd4bf; } .v.orange { color: #f0883e; } .v.blue { color: #58a6ff; }
+  .runbar { display: flex; align-items: center; gap: 14px; background: #10201f; border: 1px solid #1d3a37;
+            border-radius: 10px; padding: 9px 14px; margin-bottom: 16px; font-size: 12px; color: #9fb3b0; }
+  .runbar b { color: #2dd4bf; font-size: 14px; }
+  .resume { display: flex; align-items: center; gap: 16px; background: #121820;
+            border: 1px solid #1e2833; border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; }
+  .resume .k { color: #7d8b96; font-size: 11px; min-width: 40px; }
+  .resume .r-info b { color: #2dd4bf; }
+  .resume .r-actions { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+  .btn { padding: 7px 14px; border-radius: 8px; border: none; background: #2dd4bf;
+         color: #0b0f14; font-weight: 600; cursor: pointer; font-size: 12px; }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-ghost { padding: 7px 14px; border-radius: 8px; border: 1px solid #30363d;
+               color: #c9d6dd; cursor: pointer; font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; background: #121820;
+          border: 1px solid #1e2833; border-radius: 10px; overflow: hidden; }
+  th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid #1a222c; }
+  th { color: #7d8b96; font-weight: 500; font-size: 11px; letter-spacing: .04em; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover { background: #16202a; }
+  tr:last-child td { border-bottom: none; }
+  .pill { padding: 1px 8px; border-radius: 9px; font-size: 11px; }
+  .apply { background: rgba(45,212,191,.15); color: #2dd4bf; }
+  .skip { background: rgba(125,139,150,.15); color: #93a1ab; }
+  .pen { color: #f0883e; }
+  .score { font-variant-numeric: tabular-nums; }
+  .detail td { background: #0f151c; padding: 12px 16px; border-bottom: 1px solid #1a222c; }
+  .detail .row { margin-bottom: 6px; line-height: 1.7; }
+  .detail .label { color: #7d8b96; display: inline-block; min-width: 74px; }
+  .greet { color: #cfe9e4; }
+  .flash { animation: flash 1.1s ease-out; }
+  .banner { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; padding: 10px 14px;
+            border-radius: 10px; background: rgba(45,212,191,.12); border: 1px solid rgba(45,212,191,.35);
+            color: #7fe6dc; font-size: 12px; animation: slidein .25s ease-out; }
+  .banner b { color: #2dd4bf; font-size: 14px; }
+  .banner .x { margin-left: auto; cursor: pointer; color: #6b7f8a; }
+  @keyframes slidein { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .chk { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #9fb3b0; cursor: pointer; }
+  .spin { display: inline-block; width: 10px; height: 10px; border: 2px solid #0b0f14;
+          border-top-color: transparent; border-radius: 50%; animation: rot .7s linear infinite; margin-right: 6px; }
+  @keyframes rot { to { transform: rotate(360deg); } }
+  @keyframes flash { from { background: rgba(45,212,191,.22); } to { background: transparent; } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useEffect, useState, useRef } = React;
+
+function App() {
+  const [stats, setStats] = useState({});
+  const [jobs, setJobs] = useState([]);
+  const [health, setHealth] = useState({});
+  const [lastRun, setLastRun] = useState({});
+  const [live, setLive] = useState(false);
+  const [openId, setOpenId] = useState(null);
+  const [flashId, setFlashId] = useState(null);
+  const [resume, setResume] = useState(null);
+  const [busyRun, setBusyRun] = useState(false);
+  const [runResult, setRunResult] = useState(null);
+  const [execute, setExecute] = useState(false);
+
+  const loadResume = async () => {
+    const r = await fetch("/resume/current").then((x) => x.json()).catch(() => null);
+    if (r && r.profile) setResume(r);
+  };
+
+  const onUpload = async (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const fd = new FormData();
+    fd.append("file", f);
+    const r = await fetch("/resume/upload", { method: "POST", body: fd }).then((x) => x.json());
+    if (r.error) { alert("上传失败：" + r.error); return; }
+    setResume(r);
+    load();
+  };
+
+  const runPipeline = async () => {
+    setBusyRun(true);
+    setRunResult(null);
+    const t0 = Date.now();
+    const r = await fetch("/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(execute ? { execute: true } : {}),
+    }).then((x) => x.json()).catch(() => ({ error: "请求失败" }));
+    setBusyRun(false);
+    if (r.error) { setRunResult({ error: r.error }); return; }
+    setRunResult({
+      evaluated: r.stats?.evaluated ?? 0,
+      applied: r.stats?.applied ?? 0,
+      elapsed: r.elapsed_ms ?? Date.now() - t0,
+      source: r.search_source,
+      queued: r.queued_commands || 0,
+      at: new Date().toLocaleTimeString(),
+    });
+    load();
+    setTimeout(() => setRunResult(null), 8000);
+  };
+  const wsRef = useRef(null);
+
+  const load = async () => {
+    const [s, j, r] = await Promise.all([
+      fetch("/stats").then((x) => x.json()).catch(() => ({})),
+      fetch("/jobs?limit=40").then((x) => x.json()).catch(() => ({ items: [] })),
+      fetch("/runs/last").then((x) => x.json()).catch(() => ({})),
+    ]);
+    setStats(s); setJobs(j.items || []); setLastRun(r || {});
+  };
+
+  useEffect(() => {
+    fetch("/health").then((r) => r.json()).then(setHealth).catch(() => {});
+    load();
+    loadResume();
+    const t = setInterval(load, 15000);
+
+    // ?autorun=1：打开即跑一轮（演示 / 截图 / 自测用）
+    if (new URLSearchParams(location.search).get("autorun") === "1") {
+      setTimeout(runPipeline, 800);
+    }
+    const proto = location.protocol === "https:" ? "wss" : "ws";
+    const ws = new WebSocket(`${proto}://${location.host}/ws/live`);
+    wsRef.current = ws;
+    ws.onopen = () => { setLive(true); setInterval(() => { try { ws.send("ping"); } catch (e) {} }, 20000); };
+    ws.onclose = () => setLive(false);
+    ws.onmessage = (e) => {
+      const ev = JSON.parse(e.data);
+      if (ev.type === "job" || ev.type === "run") {
+        if (ev.job_id) { setFlashId(ev.job_id); setTimeout(() => setFlashId(null), 1200); }
+        load();
+      }
+    };
+    return () => { clearInterval(t); ws.close(); };
+  }, []);
+
+  const total = stats.total || 0;
+  const apply = stats.apply || 0;
+  const rate = total ? Math.round((apply / total) * 100) : 0;
+
+  return (
+    <div className="wrap">
+      <header>
+        <h1>JobPilot</h1>
+        <span className="muted">
+          db: {health.db || "-"} · cache: {health.cache || "-"} · vectors: {health.vectors || "-"} ·
+          threshold: {health.threshold ?? "-"}
+        </span>
+        <span className="live"><span className={"dot " + (live ? "on" : "")} />{live ? "实时连接" : "未连接"}</span>
+      </header>
+
+      <div className="cards">
+        <div className="card"><div className="k">岗位总数</div><div className="v">{total}</div></div>
+        <div className="card"><div className="k">建议投递</div><div className="v green">{apply}</div></div>
+        <div className="card"><div className="k">跳过</div><div className="v">{stats.skip || 0}</div></div>
+        <div className="card"><div className="k">平均匹配分</div><div className="v blue">{stats.avg_score ?? "-"}</div></div>
+        <div className="card"><div className="k">投递率 / 今日已投</div><div className="v orange">{rate}% / {stats.today_count || 0}</div></div>
+      </div>
+
+      <div className="runbar">
+        <span>最近一次流水线运行：{lastRun.at || "尚未运行"}</span>
+        {lastRun.at && <>
+          <span>评估 <b>{lastRun.evaluated}</b> 个</span>
+          <span>投递 <b>{lastRun.applied}</b> 个</span>
+          <span>耗时 {lastRun.elapsed_ms ?? "-"} ms</span>
+          {lastRun.search_source && <span>数据源 <b>{lastRun.search_source}</b></span>}
+          {lastRun.city && <span>城市 {lastRun.city}</span>}
+          {lastRun.keywords?.length > 0 && <span>关键词 {lastRun.keywords.join("/")}</span>}
+          {lastRun.errors?.length > 0 && <span className="pen">错误 {lastRun.errors.length}</span>}
+        </>}
+      </div>
+
+      <div className="resume">
+        <div className="k">简历</div>
+        {resume && resume.profile ? (
+          <div className="r-info">
+            <b>{resume.filename}</b>　{resume.chars} 字　技能 {resume.profile.skills?.length || 0} 项
+            <div className="muted" style={{ marginTop: 3 }}>
+              方向 {(resume.profile.directions || []).join(" / ")}　城市 {resume.profile.city}　
+              薪资下限 {resume.profile.salary_min}K　关键词 {(resume.profile.keywords || []).join(" / ")}
+            </div>
+          </div>
+        ) : (
+          <div className="muted">尚未上传简历（支持 PDF / DOCX / TXT / MD，最大 10MB）</div>
+        )}
+        <div className="r-actions">
+          <label className="btn-ghost">
+            选择简历文件
+            <input type="file" accept=".pdf,.docx,.txt,.md" onChange={onUpload} hidden />
+          </label>
+          <label className="chk">
+            <input type="checkbox" checked={execute} onChange={(e) => setExecute(e.target.checked)} />
+            决策后交给扩展执行
+          </label>
+          <button className="btn" onClick={runPipeline} disabled={!resume || busyRun}>
+            {busyRun ? <><span className="spin" />运行中…</> : (execute ? "跑一轮并投递" : "用这份简历跑一轮")}
+          </button>
+        </div>
+      </div>
+
+      {runResult && (
+        <div className="banner">
+          {runResult.error ? (
+            <span>运行失败：{runResult.error}</span>
+          ) : (
+            <>
+              <b>✓ 本次运行完成</b>
+              <span>评估 <b>{runResult.evaluated}</b> 个岗位</span>
+              <span>建议投递 <b>{runResult.applied}</b> 个</span>
+              <span>耗时 {runResult.elapsed} ms</span>
+              <span>数据源 {runResult.source}</span>
+              {runResult.queued > 0 && <span>已入队 <b>{runResult.queued}</b> 条投递指令</span>}
+              <span style={{ color: "#6b7f8a" }}>{runResult.at}</span>
+            </>
+          )}
+          <span className="x" onClick={() => setRunResult(null)}>×</span>
+        </div>
+      )}
+
+      <table>
+        <thead>
+          <tr><th>职位</th><th>公司</th><th>薪资</th><th>匹配分</th><th>扣分</th><th>决策</th><th>时间</th></tr>
+        </thead>
+        <tbody>
+          {jobs.map((j) => (
+            <React.Fragment key={j.job_id}>
+              <tr className={j.job_id === flashId ? "flash" : ""} onClick={() => setOpenId(openId === j.job_id ? null : j.job_id)}>
+                <td>{j.title || "-"}</td>
+                <td>{j.company || "-"}</td>
+                <td>{j.salary || "-"}</td>
+                <td className="score">{j.score ?? "-"}</td>
+                <td className="pen">{j.penalty ? `-${j.penalty}` : ""}</td>
+                <td><span className={"pill " + (j.decision === "apply" ? "apply" : "skip")}>
+                  {j.decision === "apply" ? "投递" : "跳过"}</span></td>
+                <td className="muted">{(j.created_at || "").slice(5, 16)}</td>
+              </tr>
+              {openId === j.job_id && (
+                <tr className="detail"><td colSpan="7">
+                  <div className="row"><span className="label">决策原因</span>{j.reason || "-"}</div>
+                  {j.penalty_reasons && <div className="row"><span className="label">扣分原因</span>{j.penalty_reasons}</div>}
+                  <div className="row"><span className="label">命中技能</span>{j.matched || "-"}</div>
+                  <div className="row"><span className="label">打招呼语</span>
+                    <span className="greet">{j.greeting || "（未生成）"}</span></div>
+                  <div className="row"><span className="label">JD 摘要</span>{(j.jd || "").slice(0, 160) || "-"}</div>
+                </td></tr>
+              )}
+            </React.Fragment>
+          ))}
+          {jobs.length === 0 && (
+            <tr><td colSpan="7" className="muted" style={{ textAlign: "center", padding: 26 }}>
+              还没有数据。上传简历后点上方「用这份简历跑一轮」，或让浏览器扩展跑一轮把真实岗位推上来。
+            </td></tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "core": [
+    "Python",
+    "Agent|智能体",
+    "LLM|大模型|大语言模型",
+    "LangGraph|LangChain",
+    "MCP|Model Context Protocol",
+    "RAG|检索增强|知识库"
+  ],
+  "bonus": [
+    "React",
+    "MySQL|SQL",
+    "FastAPI",
+    "Redis",
+    "Qdrant|向量数据库",
+    "WebSocket",
+    "Docker"
+  ],
+  "exclude": ["java", "后端", "销售", "标注", "训练师", "客服"]
+}
