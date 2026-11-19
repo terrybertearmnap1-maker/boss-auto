@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "BOSS 自动投递助手",
-  "version": "3.6.0",
+  "version": "3.7.0",
   "description": "按关键词/城市/薪资/经验/学历筛选 BOSS直聘 职位并批量打招呼，支持演练模式与每日上限",
   "permissions": ["storage", "downloads"],
   "host_permissions": ["https://www.zhipin.com/*", "http://127.0.0.1/*", "http://localhost/*"],

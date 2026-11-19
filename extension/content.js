@@ -483,6 +483,19 @@
     }
   }
 
+  // 上报失败计数：后端没起 / 端口被占时扩展不会报错，数据会静默丢失，
+  // 把失败次数显示在面板上，否则用户根本不知道丢了数据。
+  const K_FAIL = 'boss_auto_report_fail';
+
+  async function bumpFail(n = 1) {
+    const cur = (await storeGet(K_FAIL, 0)) || 0;
+    await storeSet(K_FAIL, cur + n);
+  }
+
+  async function reportFailCount() {
+    return (await storeGet(K_FAIL, 0)) || 0;
+  }
+
   /** 把岗位结果推给 JobPilot（数据库 / 向量去重 / 看板都靠它） */
   async function reportToBackend(entry) {
     const cfg = await getCfg();
@@ -490,19 +503,26 @@
     if (!base || !entry.url) return;
     const jid = entry.jobId || jobId(entry.url);
     if (!jid) return;
-    await fetch(base.replace(/\/+$/, '') + '/ingest', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        job_id: jid,
-        title: entry.title || '',
-        company: entry.company || '',
-        salary: entry.salary || '',
-        url: entry.url || '',
-        source: 'zhipin',
-        jd: entry.jd || '',
-      }),
-    });
+    let res = null;
+    try {
+      res = await fetch(base.replace(/\/+$/, '') + '/ingest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          job_id: jid,
+          title: entry.title || '',
+          company: entry.company || '',
+          salary: entry.salary || '',
+          url: entry.url || '',
+          source: 'zhipin',
+          jd: entry.jd || '',
+        }),
+      });
+    } catch (e) {
+      await bumpFail();
+      return;
+    }
+    if (!res || !res.ok) await bumpFail();
   }
 
   async function markGreeted(id) {
@@ -525,12 +545,13 @@
     panel.id = 'boss-auto-panel';
     panel.innerHTML = `
       <div class="ba-head">
-        <span class="ba-title">BOSS 自动投递 <em style="font-style:normal;opacity:.75;font-size:11px">v3.6</em></span>
+        <span class="ba-title">BOSS 自动投递 <em style="font-style:normal;opacity:.75;font-size:11px">v3.7</em></span>
         <span class="ba-badge" id="ba-badge">待机</span>
       </div>
       <div class="ba-body">
         <div class="ba-row"><span>今日已投</span><b id="ba-count">0</b></div>
         <div class="ba-row"><span>本轮进度</span><b id="ba-progress">-</b></div>
+        <div id="ba-fail" style="display:none;color:#ffb020;font-size:11px;margin-top:2px"></div>
         <div class="ba-status" id="ba-status">等待</div>
         <div class="ba-actions">
           <button id="ba-start">开始</button>
@@ -582,6 +603,12 @@
     const run = await getRun();
     const count = await todayCount();
     panelEl.querySelector('#ba-count').textContent = String(count);
+    const fails = await reportFailCount();
+    const failEl = panelEl.querySelector('#ba-fail');
+    if (failEl) {
+      failEl.textContent = fails ? `⚠ 上报失败 ${fails} 条（后端没收到，检查服务是否在跑）` : '';
+      failEl.style.display = fails ? 'block' : 'none';
+    }
     const badge = panelEl.querySelector('#ba-badge');
     if (!run || run.status !== 'running') {
       badge.textContent = run && run.status === 'finished' ? '已完成' : '待机';
@@ -730,6 +757,7 @@
     }
     const greeted = await storeGet(K_GREETED, {});
     await storeSet(K_VISITED, []); // 新一轮开始，清掉上一轮残留的访问缓冲
+    await storeSet(K_FAIL, 0);     // 上报失败计数按轮统计
     setStatus('正在筛选岗位…');
     const { queue, stats, samples } = await collectJobs(cfg, greeted);
     if (!queue.length) {
