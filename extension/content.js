@@ -38,6 +38,7 @@
     minScore: 60,
     reportUrl: '',
     autoExecute: false,
+    useBackendGreeting: true,
     safetyStopOnCaptcha: true,
   };
 
@@ -349,6 +350,38 @@
   }
 
   /**
+   * 取这次要发的话术：优先问后端（按 JD 用 LLM 生成），
+   * 后端不可用 / 未配置 / 校验不通过时回退到本地占位符模板。
+   */
+  async function pickGreeting(cfg, item, jdText, sc) {
+    const local = renderGreeting(cfg.greeting, item, sc);
+    if (!cfg.useBackendGreeting) return local;
+    const base = String(cfg.reportUrl || '').trim();
+    if (!base) return local;
+    try {
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), 15000);
+      const res = await fetch(base.replace(/\/+$/, '') + '/greeting', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: item.title || '',
+          company: item.company || '',
+          jd: String(jdText || '').slice(0, 2000),
+          matched: (sc && sc.hits) || [],
+        }),
+        signal: ctl.signal,
+      });
+      clearTimeout(timer);
+      if (!res.ok) return local;
+      const data = await res.json();
+      return (data && data.greeting) || local;
+    } catch (e) {
+      return local;   // 后端不在也不影响投递
+    }
+  }
+
+  /**
    * 按岗位渲染话术，让每个岗位说的不一样。
    *   {岗位} / {title}    岗位名
    *   {公司} / {company}  公司名
@@ -545,7 +578,7 @@
     panel.id = 'boss-auto-panel';
     panel.innerHTML = `
       <div class="ba-head">
-        <span class="ba-title">BOSS 自动投递 <em style="font-style:normal;opacity:.75;font-size:11px">v3.7</em></span>
+        <span class="ba-title">BOSS 自动投递 <em style="font-style:normal;opacity:.75;font-size:11px">v3.8</em></span>
         <span class="ba-badge" id="ba-badge">待机</span>
       </div>
       <div class="ba-body">
@@ -1050,7 +1083,7 @@
 
     const cfg = await getCfg();
     setStatus('正在发送打招呼语…');
-    const res = await sendGreeting(cfg, renderGreeting(cfg.greeting, item, sc));
+    const res = await sendGreeting(cfg, await pickGreeting(cfg, item, jdText, sc));
     if (!res.ok) {
       // 没发出去就不能算成功，也不能标记为已沟通，下一轮还能重试
       await logEntry({

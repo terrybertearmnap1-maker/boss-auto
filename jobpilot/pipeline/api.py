@@ -271,6 +271,43 @@ def stats() -> Dict:
         "db": db.backend, "cache": cache.backend, "vectors": vectors.backend}}
 
 
+class GreetingIn(BaseModel):
+    title: str = ""
+    company: str = ""
+    jd: str = ""
+    matched: List[str] = []
+
+
+@app.post("/greeting")
+def make_greeting(body: GreetingIn) -> Dict:
+    """给单个岗位生成打招呼语——扩展在发送前调它，就能做到"每个岗位不一样"。
+
+    走的是 Agent4 的同一条链路：三段式约束 + 技能校验，没有 Key 时回退模板。
+    """
+    from agents import decide_agent
+
+    cur = resume_store.current()
+    if not cur:
+        return {"error": "JobPilot 里还没有简历，先上传一份", "greeting": "", "source": "none"}
+    profile = cur["profile"]
+    job = {
+        "title": body.title,
+        "company": body.company,
+        "jd": body.jd,
+        "matched": body.matched or [],
+    }
+    template = decide_agent._template(job, profile)
+    llm_text = decide_agent._llm_greeting(job, profile) if body.jd else None
+    overclaim = decide_agent._overclaims(llm_text, profile, job["matched"]) if llm_text else []
+    if llm_text and not overclaim:
+        return {"greeting": llm_text, "source": "llm"}
+    return {
+        "greeting": template,
+        "source": "template",
+        "reason": f"话术提到简历没有的技术 {overclaim}" if overclaim else "未配置 LLM",
+    }
+
+
 @app.post("/resume/upload")
 async def upload_resume(file: UploadFile = File(...)) -> Dict:
     """上传简历（PDF / DOCX / TXT / MD），解析成结构化画像并缓存，供后续 /run 使用。"""

@@ -78,6 +78,7 @@ function fill(cfg) {
   $('w2e').value = w[1]?.[1] || '16:00';
   $('dryRun').checked = !!cfg.dryRun;
   $('autoExecute').checked = !!cfg.autoExecute;
+  $('useBackendGreeting').checked = cfg.useBackendGreeting !== false;
   $('enabled').checked = !!cfg.enabled;
   renderUrl(cfg);
 }
@@ -87,6 +88,7 @@ function read() {
     enabled: $('enabled').checked,
     dryRun: $('dryRun').checked,
     autoExecute: $('autoExecute').checked,
+    useBackendGreeting: $('useBackendGreeting').checked,
     keywords: splitList($('keywords').value),
     excludeKeywords: splitList($('excludeKeywords').value),
     coreSkills: splitList($('coreSkills').value),
